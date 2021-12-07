@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Data.SqlClient;
 using Roommates.Models;
+using System.Linq;
 
 
 namespace Roommates.Repositories
@@ -106,10 +107,35 @@ namespace Roommates.Repositories
                     chore.Id = id;
                 }
             }
-
-            // when this method is finished we can look in the database and see the new chore.
         }
 
+        public List<Chore> GetUnassignedChores()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT * FROM Chore
+                            Left Join RoommateChore on RoommateChore.ChoreId =      Chore.Id
+                            where RoommateChore.RoommateId IS NULL";
+                    List<Chore> unassignedChores = new List<Chore>();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Chore noAssignment = new Chore
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                            };
+                            unassignedChores.Add(noAssignment);
+                        }
+                        return unassignedChores;
+                    }
+                }
+            }
+        }
     }
    
 }
