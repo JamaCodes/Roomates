@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Roommates.Repositories;
 using Roommates.Models;
 
+using System.Linq;
+
 namespace Roommates
 {
     class Program
@@ -22,6 +24,30 @@ namespace Roommates
 
                 switch (selection)
                 {
+                    case ("Update a room"):
+                        List<Room> roomOptions = roomRepo.GetAll();
+                        foreach (Room r in roomOptions)
+                        {
+                            Console.WriteLine($"{r.Id} - {r.Name} Max Occupancy({r.MaxOccupancy})");
+                        }
+
+                        Console.Write("Which room would you like to update? ");
+                        int selectedRoomId = int.Parse(Console.ReadLine());
+                        Room selectedRoom = roomOptions.FirstOrDefault(r => r.Id == selectedRoomId);
+
+                        Console.Write("New Name: ");
+                        selectedRoom.Name = Console.ReadLine();
+
+                        Console.Write("New Max Occupancy: ");
+                        selectedRoom.MaxOccupancy = int.Parse(Console.ReadLine());
+
+                        roomRepo.Update(selectedRoom);
+
+                        Console.WriteLine("Room has been successfully updated");
+                        Console.Write("Press any key to continue");
+                        Console.ReadKey();
+                        break;
+
                     case ("Show all rooms"):
                         List<Room> rooms = roomRepo.GetAll();
                         foreach (Room r in rooms)
@@ -43,8 +69,25 @@ namespace Roommates
                         break;
 
                     // Do stuff
+                    case ("Delete a room"):
+                        List<Room> roomsToBeDeleted = roomRepo.GetAll();
+                        foreach (Room r in roomsToBeDeleted)
+                        {
+                            Console.WriteLine($"{r.Name} has an Id of {r.Id} and a max occupancy of {r.MaxOccupancy}");
+                        }
+                       
 
-                        case ("Add a room"):
+                        Console.Write("Room id: ");
+                        int roomToDelete = int.Parse(Console.ReadLine());
+
+                        roomRepo.Delete(roomToDelete);
+
+                        Console.WriteLine($"Room has been Deleted");
+                        Console.Write("Press any key to continue");
+                        Console.ReadKey();
+                        break;
+
+                    case ("Add a room"):
                         Console.Write("Room name: ");
                         string name = Console.ReadLine();
 
@@ -121,6 +164,8 @@ namespace Roommates
                 "Show all rooms",
                 "Search for room",
                 "Add a room",
+                "Update a room",
+                "Delete a room",
                 "Show all chores",
                 "Search for chore",
                 "Add a chore",
